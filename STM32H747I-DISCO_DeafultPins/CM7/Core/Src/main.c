@@ -24,6 +24,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include <stdio.h>
+#include "is42s32800g.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -125,7 +128,9 @@ uint32_t sdram_aRxBuffer[BUFFER_SIZE];
 uint8_t qspi_aTxBuffer[QSPI_BUFFER_SIZE];
 uint8_t qspi_aRxBuffer[QSPI_BUFFER_SIZE];
 
-SDRAM_HandleTypeDef hsdram[SDRAM_INSTANCES_NBR];
+FMC_SDRAM_CommandTypeDef Command;
+
+extern uint32_t FMC_DeInitialized;
 
 /* USER CODE END PV */
 
@@ -156,7 +161,10 @@ static void MX_TIM13_Init(void);
 static void MX_DMA2D_Init(void);
 /* USER CODE BEGIN PFP */
 
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+
 static void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_CommandTypeDef *Command);
+static void IS42S32800G_SDRAM_Initialization_Sequence(void);
 static void Fill_Buffer(uint32_t *pBuffer, uint32_t uwBufferLenght, uint32_t uwOffset);
 static uint8_t Buffercmp(uint32_t* pBuffer1, uint32_t* pBuffer2, uint16_t BufferLength);
 
@@ -258,44 +266,44 @@ Error_Handler();
   MX_DMA2D_Init();
   /* USER CODE BEGIN 2 */
 
+  // Test USART1
+  printf("USER CODE BEGIN 2 \n\r");
+
   /*
-   *  SDRAm Test
+   *  SDRAM Test
    */
+  /* Perform the SDRAM exernal memory inialization sequence */
+//  SDRAM_Initialization_Sequence(&hsdram1, &Command); // this one or the one below
+  IS42S32800G_SDRAM_Initialization_Sequence();
+
   /* Fill the buffer to write */
   Fill_Buffer(sdram_aTxBuffer, BUFFER_SIZE, 0xA244250F);
 
   /* Write data to the SDRAM memory */
   if(HAL_SDRAM_Write_32b(&hsdram1, (uint32_t *)(SDRAM_WRITE_READ_ADDR + WRITE_READ_ADDR), (uint32_t*)sdram_aTxBuffer, BUFFER_SIZE) != HAL_OK)
   {
-
-  }
-  else
-  {
-
+	  Error_Handler();
   }
 
   /* Read back data from the SDRAM memory */
   if(HAL_SDRAM_Read_32b(&hsdram1, (uint32_t *)(SDRAM_WRITE_READ_ADDR + WRITE_READ_ADDR), (uint32_t*)sdram_aRxBuffer, BUFFER_SIZE) != HAL_OK)
   {
-
-  }
-  else
-  {
-
+	  Error_Handler();
   }
 
   /* CompareSDRAM memory */
   if(Buffercmp(sdram_aTxBuffer, sdram_aRxBuffer, BUFFER_SIZE) > 0)
   {
-
-  }
-  else
-  {
-
+	  Error_Handler();
   }
 
+  /*
+   *  SDRAM DMA Test to do later
+   */
 
 
+
+  printf("USER CODE END 2 \n\r");
 
   /* USER CODE END 2 */
 
@@ -1512,6 +1520,46 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the LPUART1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF); // hlpuart1 >> huart1
+
+  return ch;
+}
+
+/**
+  * @brief  Perform the IS42S32800G SDRAM exernal memory inialization sequence
+  * @param  hsdram: SDRAM handle
+  * @param  Command: Pointer to SDRAM command structure
+  * @retval None
+  */
+static void IS42S32800G_SDRAM_Initialization_Sequence(void)
+{
+	static IS42S32800G_Context_t pRegMode;
+
+    /* External memory mode register configuration */
+    pRegMode.TargetBank      = FMC_SDRAM_CMD_TARGET_BANK2;
+    pRegMode.RefreshMode     = IS42S32800G_AUTOREFRESH_MODE_CMD;
+    pRegMode.RefreshRate     = REFRESH_COUNT;
+    pRegMode.BurstLength     = IS42S32800G_BURST_LENGTH_1;
+    pRegMode.BurstType       = IS42S32800G_BURST_TYPE_SEQUENTIAL;
+    pRegMode.CASLatency      = IS42S32800G_CAS_LATENCY_3;
+    pRegMode.OperationMode   = IS42S32800G_OPERATING_MODE_STANDARD;
+    pRegMode.WriteBurstMode  = IS42S32800G_WRITEBURST_MODE_SINGLE;
+
+    /* SDRAM initialization sequence */
+    if(IS42S32800G_Init(&hsdram1, &pRegMode) != IS42S32800G_OK)
+    {
+//      ret =  BSP_ERROR_COMPONENT_FAILURE;
+    }
+    else
+    {
+//      ret = BSP_ERROR_NONE;
+    }
+}
+
 /**
   * @brief  Perform the SDRAM exernal memory inialization sequence
   * @param  hsdram: SDRAM handle
@@ -1570,6 +1618,34 @@ static void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM
   /* Step 6: Set the refresh rate counter */
   /* Set the device refresh rate */
   HAL_SDRAM_ProgramRefreshRate(hsdram, REFRESH_COUNT);
+
+}
+
+/**
+  * @brief  Initializes SDRAM MDMA.
+  * @param  hsdram SDRAM handle
+  * @retval None
+  */
+static void SDRAM_MDMA(SDRAM_HandleTypeDef  *hsdram)
+{
+	static MDMA_HandleTypeDef mdma_handle;
+
+	  /* Enable chosen MDMAx clock */
+	  SDRAM_MDMAx_CLK_ENABLE();
+
+	   /* Associate the MDMA handle */
+	  __HAL_LINKDMA(hsdram, hmdma, mdma_handle);
+
+	  /* Deinitialize the stream for new transfer */
+	  (void)HAL_MDMA_DeInit(&mdma_handle);
+
+	  /* Configure the MDMA stream */
+	  (void)HAL_MDMA_Init(&mdma_handle);
+
+	  /* NVIC configuration for DMA transfer complete interrupt */
+	  //HAL_NVIC_SetPriority(SDRAM_MDMAx_IRQn, BSP_SDRAM_IT_PRIORITY, 0);
+//	  HAL_NVIC_SetPriority(SDRAM_MDMAx_IRQn, 15U, 0);
+//	  HAL_NVIC_EnableIRQ(SDRAM_MDMAx_IRQn);
 
 }
 
@@ -1639,6 +1715,9 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
+
+  printf("Error! \n\r");
+
   __disable_irq();
   while (1)
   {

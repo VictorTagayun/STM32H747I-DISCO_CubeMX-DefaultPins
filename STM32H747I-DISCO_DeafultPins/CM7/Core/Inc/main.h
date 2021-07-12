@@ -353,6 +353,12 @@ void Error_Handler(void);
 #define SDRAM_MODEREG_WRITEBURST_MODE_PROGRAMMED ((uint16_t)0x0000)
 #define SDRAM_MODEREG_WRITEBURST_MODE_SINGLE     ((uint16_t)0x0200)
 
+/* SDRAM write address */
+#define SDRAM_WRITE_READ_ADDR         0xD0177000
+#define AUDIO_REC_START_ADDR         SDRAM_WRITE_READ_ADDR
+#define AUDIO_REC_TOTAL_SIZE         ((uint32_t) 0x0000E000)
+#define AUDIO_RECPDM_START_ADDR      (AUDIO_REC_START_ADDR+AUDIO_REC_TOTAL_SIZE)
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
