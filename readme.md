@@ -46,17 +46,20 @@ add in main.c
 ### Use is42s32800g from BSP Driver Component
 
 in main.c add   
+
 	#include "is42s32800g.h"   
 	IS42S32800G_SDRAM_Initialization_Sequence();  
 
 ## FMC / SDRAM MDMA Setup  
 
 add in main.c  
+
 	SDRAM_MDMA()
 
 ## FMC / SDRAM Test 
 
 add in main.c   
+
 	Fill_Buffer(sdram_aTxBuffer, BUFFER_SIZE, 0xA244250F);  
 	HAL_SDRAM_Write_32b();   
 	HAL_SDRAM_Read_32b();   
