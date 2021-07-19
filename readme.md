@@ -65,10 +65,41 @@ add in main.c
 	HAL_SDRAM_Read_32b();   
 	Buffercmp();  
 
+## QSPI_demo
+
+/*##-1- Configure the QSPI device ##########################################*/
+BSP_QSPI_Init(0,&init);
+/*##-2- Read & check the QSPI info #######################################*/
+BSP_QSPI_GetInfo(0,&pQSPI_Info);
+/* Test the correctness */
+if((pQSPI_Info.FlashSize != 0x8000000) || (pQSPI_Info.EraseSectorSize != 0x2000)  ||
+(pQSPI_Info.ProgPageSize != 0x100)  || (pQSPI_Info.EraseSectorsNumber != 0x4000) ||
+(pQSPI_Info.ProgPagesNumber != 0x80000))
+/*##-3- Erase QSPI memory ################################################*/
+if(BSP_QSPI_EraseBlock(0,WRITE_READ_ADDR,BSP_QSPI_ERASE_8K) != BSP_ERROR_NONE)
+/*##-4- QSPI memory read/write access  #################################*/
+/* Fill the buffer to write */
+Fill_Buffer(qspi_aTxBuffer, BUFFER_SIZE, 0xD20F);
+
+/* Write data to the QSPI memory */
+if(BSP_QSPI_Write(0,qspi_aTxBuffer, WRITE_READ_ADDR, BUFFER_SIZE) != BSP_ERROR_NONE)
+/* Read back data from the QSPI memory */
+if(BSP_QSPI_Read(0,qspi_aRxBuffer, WRITE_READ_ADDR, BUFFER_SIZE) != BSP_ERROR_NONE)
+
+/*##-5- Checking data integrity ############################################*/
+if(Buffercmp(qspi_aRxBuffer, qspi_aTxBuffer, BUFFER_SIZE) > 0)
+/*##-6-Memory Mapped Mode ###############################################*/
+if(BSP_QSPI_EnableMemoryMappedMode(0)!=BSP_ERROR_NONE)			
+
 
 ## QSPI Setup (temp) better copy stm32h747i_discovery_qspi.c/h  
 
-BSP_QSPI_Init(below){ 
+BSP_QSPI_Init = below   
+
+    /* Check if instance is already initialized */  
+    if(QSPI_Ctx[Instance].IsInitialized == QSPI_ACCESS_NONE)  
+	/* Msp QSPI initialization */
+	QSPI_MspInit(&hqspi); = same 
 	/* STM32 QSPI interface initialization */   
 	MX_QSPI_Init   
 	/* QSPI memory reset */   
@@ -80,5 +111,44 @@ BSP_QSPI_Init(below){
 	QSPI_DummyCyclesCfg   
 	/* Configure Flash to desired mode */   
 	BSP_QSPI_ConfigFlash
-}  
+
+
+BSP_QSPI_ConfigFlash(uint32_t Instance, BSP_QSPI_Interface_t Mode, BSP_QSPI_Transfer_t Rate) = below   
+
+	/* Setup MCU transfer rate setting ***************************************************/
+	hqspi.Init.SampleShifting = (Rate == BSP_QSPI_STR_TRANSFER) ? QSPI_SAMPLE_SHIFTING_HALFCYCLE : QSPI_SAMPLE_SHIFTING_NONE;
+	/* Setup Flash interface ***************************************************/
+	switch(QSPI_Ctx[Instance].InterfaceMode)   
+		{
+		case MT25TL01G_QPI_MODE :               /* 4-4-4 commands */
+			if(Mode != MT25TL01G_QPI_MODE)
+			{
+				if(MT25TL01G_ExitQPIMode(&hqspi) != MT25TL01G_OK)
+				{
+					ret = BSP_ERROR_COMPONENT_FAILURE;
+				}
+			}
+		break;
+
+		case BSP_QSPI_SPI_MODE :               /* 1-1-1 commands, Power on H/W default setting */
+		case BSP_QSPI_SPI_2IO_MODE :           /* 1-2-2 read commands */
+		case BSP_QSPI_SPI_4IO_MODE :           /* 1-4-4 read commands */
+		default :
+			if(Mode == MT25TL01G_QPI_MODE)
+			{
+				if(MT25TL01G_EnterQPIMode(&hqspi) != MT25TL01G_OK)
+				{
+					ret = BSP_ERROR_COMPONENT_FAILURE;
+				}
+			}
+		break;
+		}
+	/* Update QSPI context if all operations are well done */
+	if(ret == BSP_ERROR_NONE) 
+	{
+		/* Update current status parameter *****************************************/
+		QSPI_Ctx[Instance].IsInitialized = QSPI_ACCESS_INDIRECT;
+		QSPI_Ctx[Instance].InterfaceMode = Mode;
+		QSPI_Ctx[Instance].TransferRate  = Rate;
+	}
 
