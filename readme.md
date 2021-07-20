@@ -27,7 +27,7 @@
 
 ## FMC / SDRAM Additional Setup after MX init - General Steps to perform the SDRAM exernal memory inialization sequence  
 
-Step 1:  Configure a clock configuration enable command   
+Step 1: Configure a clock configuration enable command   
 Step 2: Insert 100 us minimum delay   
 	Inserted delay is equal to 1 ms due to systick time base unit (ms)   
 Step 3: Configure a PALL (precharge all) command    
@@ -65,34 +65,41 @@ add in main.c
 	HAL_SDRAM_Read_32b();   
 	Buffercmp();  
 
-## QSPI_demo
 
-/*##-1- Configure the QSPI device ##########################################*/
-BSP_QSPI_Init(0,&init);
-/*##-2- Read & check the QSPI info #######################################*/
-BSP_QSPI_GetInfo(0,&pQSPI_Info);
-/* Test the correctness */
-if((pQSPI_Info.FlashSize != 0x8000000) || (pQSPI_Info.EraseSectorSize != 0x2000)  ||
-(pQSPI_Info.ProgPageSize != 0x100)  || (pQSPI_Info.EraseSectorsNumber != 0x4000) ||
-(pQSPI_Info.ProgPagesNumber != 0x80000))
-/*##-3- Erase QSPI memory ################################################*/
-if(BSP_QSPI_EraseBlock(0,WRITE_READ_ADDR,BSP_QSPI_ERASE_8K) != BSP_ERROR_NONE)
-/*##-4- QSPI memory read/write access  #################################*/
-/* Fill the buffer to write */
-Fill_Buffer(qspi_aTxBuffer, BUFFER_SIZE, 0xD20F);
+## QSPI Setup (temp), but better copy stm32h747i_discovery_qspi.c/h  
 
-/* Write data to the QSPI memory */
-if(BSP_QSPI_Write(0,qspi_aTxBuffer, WRITE_READ_ADDR, BUFFER_SIZE) != BSP_ERROR_NONE)
-/* Read back data from the QSPI memory */
-if(BSP_QSPI_Read(0,qspi_aRxBuffer, WRITE_READ_ADDR, BUFFER_SIZE) != BSP_ERROR_NONE)
+### QSPI_demo from BSP
 
-/*##-5- Checking data integrity ############################################*/
-if(Buffercmp(qspi_aRxBuffer, qspi_aTxBuffer, BUFFER_SIZE) > 0)
-/*##-6-Memory Mapped Mode ###############################################*/
-if(BSP_QSPI_EnableMemoryMappedMode(0)!=BSP_ERROR_NONE)			
+	/*##-1- Configure the QSPI device ##########################################*/
+	BSP_QSPI_Init(0,&init);
+
+	/*##-2- Read & check the QSPI info #######################################*/
+	BSP_QSPI_GetInfo(0,&pQSPI_Info);
+
+	/* Test the correctness */
+	if((pQSPI_Info.FlashSize != 0x8000000) || (pQSPI_Info.EraseSectorSize != 0x2000)  ||
+	(pQSPI_Info.ProgPageSize != 0x100)  || (pQSPI_Info.EraseSectorsNumber != 0x4000) ||
+	(pQSPI_Info.ProgPagesNumber != 0x80000))
+
+	/*##-3- Erase QSPI memory ################################################*/
+	if(BSP_QSPI_EraseBlock(0,WRITE_READ_ADDR,BSP_QSPI_ERASE_8K) != BSP_ERROR_NONE)
+
+	/*##-4- QSPI memory read/write access  #################################*/
+	/* Fill the buffer to write */
+	Fill_Buffer(qspi_aTxBuffer, BUFFER_SIZE, 0xD20F);
+	/* Write data to the QSPI memory */
+	if(BSP_QSPI_Write(0,qspi_aTxBuffer, WRITE_READ_ADDR, BUFFER_SIZE) != BSP_ERROR_NONE)
+	/* Read back data from the QSPI memory */
+	if(BSP_QSPI_Read(0,qspi_aRxBuffer, WRITE_READ_ADDR, BUFFER_SIZE) != BSP_ERROR_NONE)
+
+	/*##-5- Checking data integrity ############################################*/
+	if(Buffercmp(qspi_aRxBuffer, qspi_aTxBuffer, BUFFER_SIZE) > 0)
+
+	/*##-6-Memory Mapped Mode ###############################################*/
+	if(BSP_QSPI_EnableMemoryMappedMode(0)!=BSP_ERROR_NONE)			
 
 
-## QSPI Setup (temp) better copy stm32h747i_discovery_qspi.c/h  
+### Functions in QSPI_demo  
 
 BSP_QSPI_Init = below   
 
@@ -101,16 +108,16 @@ BSP_QSPI_Init = below
 	/* Msp QSPI initialization */
 	QSPI_MspInit(&hqspi); = same 
 	/* STM32 QSPI interface initialization */   
-	MX_QSPI_Init   
+	MX_QSPI_Init = MX_QUADSPI_Init (from CubeIDE)       
 	/* QSPI memory reset */   
-	QSPI_ResetMemory   
+	QSPI_ResetMemory = no equivalent, can copy the codes from stm32h747i_discovery_qspi.c         
 	/* Force Flash enter 4 Byte address mode */   
-	MT25TL01G_AutoPollingMemReady    
-	MT25TL01G_Enter4BytesAddressMode   
+	MT25TL01G_AutoPollingMemReady = from mt25tl01g.c   
+	MT25TL01G_Enter4BytesAddressMode = from mt25tl01g.c   
 	/* Configuration of the dummy cycles on QSPI memory side */   
-	QSPI_DummyCyclesCfg   
+	QSPI_DummyCyclesCfg = no equivalent, can copy the codes from stm32h747i_discovery_qspi.c  
 	/* Configure Flash to desired mode */   
-	BSP_QSPI_ConfigFlash
+	BSP_QSPI_ConfigFlash =  no equivalent, can copy the codes from stm32h747i_discovery_qspi.c 
 
 
 BSP_QSPI_ConfigFlash(uint32_t Instance, BSP_QSPI_Interface_t Mode, BSP_QSPI_Transfer_t Rate) = below   
@@ -151,4 +158,11 @@ BSP_QSPI_ConfigFlash(uint32_t Instance, BSP_QSPI_Interface_t Mode, BSP_QSPI_Tran
 		QSPI_Ctx[Instance].InterfaceMode = Mode;
 		QSPI_Ctx[Instance].TransferRate  = Rate;
 	}
+
+
+## QSPI Setup copying stm32h747i_discovery_qspi.c/h  
+
+see similar guide in [STM32H747I-DISCO_BSP_Study](https://github.com/VictorTagayun/STM32H747I-DISCO_BSP_Study#test-qspi) 
+
+
 
