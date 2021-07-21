@@ -160,9 +160,21 @@ BSP_QSPI_ConfigFlash(uint32_t Instance, BSP_QSPI_Interface_t Mode, BSP_QSPI_Tran
 	}
 
 
-## QSPI Setup copying stm32h747i_discovery_qspi.c/h  
+## QSPI Setup copying stm32h747i_discovery_qspi.c/h (more easy)   
 
 see similar guide in [STM32H747I-DISCO_BSP_Study](https://github.com/VictorTagayun/STM32H747I-DISCO_BSP_Study#test-qspi) 
 
+from BSP example in Repository\STM32Cube_FW_H7_V1.9.0\Projects\STM32H747I-DISCO\Examples\BSP\CM7\Inc, copy "stm32h747i_discovery_conf.h"  
+
+copy to CM7\Core\Inc the ff files below, check from BSP example folder Repository\STM32Cube_FW_H7_V1.9.0\Projects\STM32H747I-DISCO\Examples\BSP  
+
+	mt25tl01g_conf.h
+	stm32h747i_discovery_conf.h
+	stm32h747i_discovery_errno.h
+	stm32h747i_discovery_qspi.h
+
+copy files mt25tl01g.c/h into folder CM7\Core\Components\mt25tl01g
 
 
+
+	

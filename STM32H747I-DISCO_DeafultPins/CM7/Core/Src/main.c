@@ -273,7 +273,7 @@ Error_Handler();
    *  SDRAM Test
    */
   /* Perform the SDRAM exernal memory inialization sequence */
-//  SDRAM_Initialization_Sequence(&hsdram1, &Command); // this one or the one below
+//  SDRAM_Initialization_Sequence(&hsdram1, &Command); // choose only one, this one or the one below
   IS42S32800G_SDRAM_Initialization_Sequence();
 
   /* Fill the buffer to write */
@@ -299,6 +299,11 @@ Error_Handler();
 
   /*
    *  SDRAM DMA Test to do later
+   */
+
+
+  /*
+   *  QSPI Test
    */
 
 
