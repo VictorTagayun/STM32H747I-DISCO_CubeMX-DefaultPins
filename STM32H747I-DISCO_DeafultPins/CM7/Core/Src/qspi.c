@@ -56,7 +56,7 @@ void QSPI_demo (void)
   BSP_QSPI_Info_t pQSPI_Info;
   uint8_t status;
 
-  QSPI_SetHint();
+//  QSPI_SetHint();
 
   /*##-1- Configure the QSPI device ##########################################*/
   /* QSPI device configuration */
@@ -74,6 +74,12 @@ void QSPI_demo (void)
 //    UTIL_LCD_DisplayStringAt(20, 160, (uint8_t*)"  refer to the UM of the board", LEFT_MODE);
 //    UTIL_LCD_DisplayStringAt(20, 175, (uint8_t*)"  for the hardware modifications", LEFT_MODE);
 //    UTIL_LCD_DisplayStringAt(20, 190, (uint8_t*)"  to connect the QSPI memory", LEFT_MODE);
+
+	  while (1)
+	  {
+		  HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_14);
+		  HAL_Delay(200);
+	  }
   }
 
   else
@@ -98,6 +104,11 @@ void QSPI_demo (void)
     {
 //      UTIL_LCD_DisplayStringAt(20, 115, (uint8_t*)"QSPI GET INFO : FAILED.", LEFT_MODE);
 //      UTIL_LCD_DisplayStringAt(20, 130, (uint8_t*)"QSPI Test Aborted.", LEFT_MODE);
+		while (1)
+		{
+		  HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_14);
+		  HAL_Delay(200);
+		}
     }
     else
     {
@@ -108,6 +119,11 @@ void QSPI_demo (void)
       {
 //        UTIL_LCD_DisplayStringAt(20, 130, (uint8_t*)"QSPI ERASE : FAILED.", LEFT_MODE);
 //        UTIL_LCD_DisplayStringAt(20, 145, (uint8_t*)"QSPI Test Aborted.", LEFT_MODE);
+    	  while (1)
+    	  {
+    		  HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_14);
+    		  HAL_Delay(200);
+    	  }
       }
       else
       {
@@ -122,6 +138,11 @@ void QSPI_demo (void)
         {
 //          UTIL_LCD_DisplayStringAt(20, 145, (uint8_t*)"QSPI WRITE : FAILED.", LEFT_MODE);
 //          UTIL_LCD_DisplayStringAt(20, 160, (uint8_t*)"QSPI Test Aborted.", LEFT_MODE);
+      	  while (1)
+      	  {
+      		  HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_14);
+      		  HAL_Delay(200);
+      	  }
         }
         else
         {
@@ -132,6 +153,11 @@ void QSPI_demo (void)
           {
 //            UTIL_LCD_DisplayStringAt(20, 160, (uint8_t*)"QSPI READ : FAILED.", LEFT_MODE);
 //            UTIL_LCD_DisplayStringAt(20, 175, (uint8_t*)"QSPI Test Aborted.", LEFT_MODE);
+        	  while (1)
+        	  {
+        		  HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_14);
+        		  HAL_Delay(200);
+        	  }
           }
           else
           {
@@ -142,6 +168,11 @@ void QSPI_demo (void)
             {
 //              UTIL_LCD_DisplayStringAt(20, 175, (uint8_t*)"QSPI COMPARE : FAILED.", LEFT_MODE);
 //              UTIL_LCD_DisplayStringAt(20, 190, (uint8_t*)"QSPI Test Aborted.", LEFT_MODE);
+          	  while (1)
+          	  {
+          		  HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_14);
+          		  HAL_Delay(200);
+          	  }
             }
             else
             {
@@ -151,6 +182,11 @@ void QSPI_demo (void)
              {
 //               UTIL_LCD_DisplayStringAt(20, 190, (uint8_t*)"QSPI Memory Mapped Mode : FAILED.     ", LEFT_MODE);
 //               UTIL_LCD_DisplayStringAt(20, 190, (uint8_t*)"QSPI Test Aborted.", LEFT_MODE);
+				  while (1)
+				  {
+					  HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_14);
+					  HAL_Delay(200);
+				  }
              }
              else
              {
@@ -164,13 +200,13 @@ void QSPI_demo (void)
     }
   }
 
-  while (1)
-  {
-    if(CheckForUserInput() > 0)
-    {
-      return;
-    }
-  }
+//  while (1)
+//  {
+//    if(CheckForUserInput() > 0)
+//    {
+//      return;
+//    }
+//  }
 }
 
 /**

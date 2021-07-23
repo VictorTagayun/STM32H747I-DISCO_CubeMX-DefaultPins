@@ -34,6 +34,8 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 
 #include "stm32h747i_discovery_qspi.h"
+#include "stm32h747i_discovery_sd.h"
+#include "stm32h747i_discovery_lcd.h"
 
 /* USER CODE END Includes */
 
@@ -360,6 +362,10 @@ void Error_Handler(void);
 #define AUDIO_REC_START_ADDR         SDRAM_WRITE_READ_ADDR
 #define AUDIO_REC_TOTAL_SIZE         ((uint32_t) 0x0000E000)
 #define AUDIO_RECPDM_START_ADDR      (AUDIO_REC_START_ADDR+AUDIO_REC_TOTAL_SIZE)
+
+#define SD_DMA_MODE      0U
+#define SD_IT_MODE       1U
+#define SD_POLLING_MODE  2U
 
 /* USER CODE END Private defines */
 

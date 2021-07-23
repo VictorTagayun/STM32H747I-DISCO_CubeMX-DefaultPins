@@ -56,6 +56,38 @@ add in main.c
 
 	SDRAM_MDMA()
 
+add in main.h
+
+	#define SDRAM_BANK_ADDR                 ((uint32_t)0xD0000000)
+
+	/* #define SDRAM_MEMORY_WIDTH            FMC_SDRAM_MEM_BUS_WIDTH_8  */
+	#define SDRAM_MEMORY_WIDTH            FMC_SDRAM_MEM_BUS_WIDTH_16
+
+	#define SDCLOCK_PERIOD                   FMC_SDRAM_CLOCK_PERIOD_2
+	/* #define SDCLOCK_PERIOD                FMC_SDRAM_CLOCK_PERIOD_3 */
+
+	#define SDRAM_TIMEOUT                    ((uint32_t)0xFFFF)
+	#define REFRESH_COUNT                    ((uint32_t)0x0603)   /* SDRAM refresh counter */
+
+	#define SDRAM_MODEREG_BURST_LENGTH_1             ((uint16_t)0x0000)
+	#define SDRAM_MODEREG_BURST_LENGTH_2             ((uint16_t)0x0001)
+	#define SDRAM_MODEREG_BURST_LENGTH_4             ((uint16_t)0x0002)
+	#define SDRAM_MODEREG_BURST_LENGTH_8             ((uint16_t)0x0004)
+	#define SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL      ((uint16_t)0x0000)
+	#define SDRAM_MODEREG_BURST_TYPE_INTERLEAVED     ((uint16_t)0x0008)
+	#define SDRAM_MODEREG_CAS_LATENCY_2              ((uint16_t)0x0020)
+	#define SDRAM_MODEREG_CAS_LATENCY_3              ((uint16_t)0x0030)
+	#define SDRAM_MODEREG_OPERATING_MODE_STANDARD    ((uint16_t)0x0000)
+	#define SDRAM_MODEREG_WRITEBURST_MODE_PROGRAMMED ((uint16_t)0x0000)
+	#define SDRAM_MODEREG_WRITEBURST_MODE_SINGLE     ((uint16_t)0x0200)
+
+	/* SDRAM write address */
+	#define SDRAM_WRITE_READ_ADDR         0xD0177000
+	#define AUDIO_REC_START_ADDR         SDRAM_WRITE_READ_ADDR
+	#define AUDIO_REC_TOTAL_SIZE         ((uint32_t) 0x0000E000)
+	#define AUDIO_RECPDM_START_ADDR      (AUDIO_REC_START_ADDR+AUDIO_REC_TOTAL_SIZE)
+
+
 ## FMC / SDRAM Test 
 
 add in main.c   
@@ -164,7 +196,9 @@ BSP_QSPI_ConfigFlash(uint32_t Instance, BSP_QSPI_Interface_t Mode, BSP_QSPI_Tran
 
 see similar guide in [STM32H747I-DISCO_BSP_Study](https://github.com/VictorTagayun/STM32H747I-DISCO_BSP_Study#test-qspi) 
 
-from BSP example in Repository\STM32Cube_FW_H7_V1.9.0\Projects\STM32H747I-DISCO\Examples\BSP\CM7\Inc, copy "stm32h747i_discovery_conf.h"  
+copy file qspi.c & stm32h747i_discovery_qspi.c to CM7\Core\Src   
+
+from BSP example in Repository\STM32Cube_FW_H7_V1.9.0\Projects\STM32H747I-DISCO\Examples\BSP\CM7\Inc, copy "stm32h747i_discovery_conf.h"   
 
 copy to CM7\Core\Inc the ff files below, check from BSP example folder Repository\STM32Cube_FW_H7_V1.9.0\Projects\STM32H747I-DISCO\Examples\BSP  
 
@@ -173,8 +207,40 @@ copy to CM7\Core\Inc the ff files below, check from BSP example folder Repositor
 	stm32h747i_discovery_errno.h
 	stm32h747i_discovery_qspi.h
 
-copy files mt25tl01g.c/h into folder CM7\Core\Components\mt25tl01g
+copy foder mt25tl01g to CM7\Core\Components\
 
+in main.h add
 
+	#include "stm32h747i_discovery_qspi.h"
 
+## SDCARD Setup copying stm32h747i_discovery_sd.c/h (more easy)   
+
+copy file sd.c and stm32h747i_discovery_sd.c in CM7\Core\Src
+
+copy to CM7\Core\Inc the ff files below, check from BSP example folder Repository\STM32Cube_FW_H7_V1.9.0\Projects\STM32H747I-DISCO\Examples\BSP  
+
+	stm32h747i_discovery_sd.h  
 	
+in stm32h747i_discovery_sd.h comment "#include "stm32h747i_discovery_bus.h""  
+
+in main.h add
+
+	#include "stm32h747i_discovery_sd.h"
+	
+in stm32h747i_discovery_sd.c/h rename function MX_SDMMC1_SD_Init to BSP_MX_SDMMC1_SD_Init so it wont have conflict with CUBEMX functions
+
+
+## LCD Setup copying stm32h747i_discovery_sd.c/h (more easy)   
+
+copy file lcd.c and stm32h747i_discovery_lcd.c in CM7\Core\Src
+
+copy to CM7\Core\Inc the ff files below, check from BSP example folder Repository\STM32Cube_FW_H7_V1.9.0\Projects\STM32H747I-DISCO\Examples\BSP  
+
+	stm32h747i_discovery_lcd.h  
+	lcd.h
+	
+in main.h add
+
+	#include "stm32h747i_discovery_lcd.h"	
+	
+copy foders adv7533 and otm8009a to CM7\Core\Components\
