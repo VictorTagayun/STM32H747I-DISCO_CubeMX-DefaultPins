@@ -26,6 +26,8 @@
 	printf("Testing USART1\n");
 
 ## FMC / SDRAM Additional Setup after MX init - General Steps to perform the SDRAM exernal memory inialization sequence  
+Where did example come from??***   
+maybe from Repository\STM32Cube_FW_H7_V1.9.0\Projects\STM32H743I-EVAL\Examples\FMC\FMC_SDRAM\Src\main.c 
 
 Step 1: Configure a clock configuration enable command   
 Step 2: Insert 100 us minimum delay   
@@ -244,3 +246,36 @@ in main.h add
 	#include "stm32h747i_discovery_lcd.h"	
 	
 copy foders adv7533 and otm8009a to CM7\Core\Components\
+
+in stm32h747i_discovery_lcd.c/h rename function MX_LTDC_Init to BSP_MX_LTDC_Init so it wont have conflict with CUBEMX functions
+
+in stm32h747i_discovery_lcd.c/h rename function MX_DSIHOST_DSI_Init to BSP_MX_DSIHOST_DSI_Init so it wont have conflict with CUBEMX functions
+
+in stm32h747i_discovery_lcd.c comment #include "stm32h747i_discovery_bus.h" and  #include "stm32h747i_discovery_sdram.h"
+
+copy Repository\STM32Cube_FW_H7_V1.9.0\Utilities\Fonts folder to CM7\Core
+
+copy stm32_lcd.c\h from Repository\STM32Cube_FW_H7_V1.9.0\Utilities\lcd to CM7\Core Src and Inc folder
+
+in main.h add
+
+	#include "stm32_lcd.h"
+	
+copy stlogo.h from Repository\STM32Cube_FW_H7_V1.9.0\Projects\STM32H747I-DISCO\Examples\BSP\CM7\Inc to CM7\Core\Inc
+
+in lcd.c add
+
+	#include "stlogo.h"
+
+copy fontXX.c to CM7\Core\Src and fonts.h to CM7\Core\Inc
+
+in stm32_lcd.h comment all
+
+	#include "../Fonts/font24.c"  
+	#include "../Fonts/font20.c"  
+	#include "../Fonts/font16.c"  
+	#include "../Fonts/font12.c"  
+	#include "../Fonts/font8.c"  
+	
+in stm32_lcd.h change #include "../Fonts/fonts.h" to #include "fonts.h"
+

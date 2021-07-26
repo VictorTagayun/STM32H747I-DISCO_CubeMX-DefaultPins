@@ -164,9 +164,17 @@ static void MX_DMA2D_Init(void);
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 
 static void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram, FMC_SDRAM_CommandTypeDef *Command);
+static void SDRAM_MDMA(SDRAM_HandleTypeDef  *hsdram);
 static void IS42S32800G_SDRAM_Initialization_Sequence(void);
 static void Fill_Buffer(uint32_t *pBuffer, uint32_t uwBufferLenght, uint32_t uwOffset);
 static uint8_t Buffercmp(uint32_t* pBuffer1, uint32_t* pBuffer2, uint16_t BufferLength);
+
+extern void QSPI_demo (void);
+extern void SD_DMA_demo(void);
+extern void SD_IT_demo(void);
+extern void SD_POLLING_demo(void);
+extern void LCD_demo (void);
+
 
 /* USER CODE END PFP */
 
@@ -308,13 +316,24 @@ Error_Handler();
   QSPI_demo();
 
   /*
-   *  QSPI Test
+   *  SDCARD Test
    */
-  SD_DMA_demo();
+//  SD_DMA_demo();
 
-  SD_IT_demo();
+//  SD_IT_demo();
+//
+//  SD_POLLING_demo();
+//
 
-  SD_POLLING_demo();
+  /*
+   *  LCD Test
+   */
+  /* Initialize the LCD */
+  BSP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
+  UTIL_LCD_SetFuncDriver(&LCD_Driver);
+  UTIL_LCD_SetFont(&UTIL_LCD_DEFAULT_FONT);
+
+  LCD_demo();
 
 
 
@@ -564,7 +583,7 @@ static void MX_DMA2D_Init(void)
   /* USER CODE END DMA2D_Init 1 */
   hdma2d.Instance = DMA2D;
   hdma2d.Init.Mode = DMA2D_R2M;
-  hdma2d.Init.ColorMode = DMA2D_OUTPUT_RGB888;
+  hdma2d.Init.ColorMode = DMA2D_OUTPUT_ARGB8888;
   hdma2d.Init.OutputOffset = 0;
   if (HAL_DMA2D_Init(&hdma2d) != HAL_OK)
   {

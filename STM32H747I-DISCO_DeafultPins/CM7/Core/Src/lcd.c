@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+#include "stlogo.h"
 /** @addtogroup STM32H7xx_HAL_Examples
   * @{
   */
@@ -47,25 +48,25 @@ static void LCD_Show_Feature(uint8_t feature);
 void LCD_demo (void)
 {
   LCD_SetHint();
-  LCD_Feature = 0;
-  LCD_Show_Feature (LCD_Feature);
+//  LCD_Feature = 0;
+//  LCD_Show_Feature (LCD_Feature);
 
-  while (1)
-  {
-
-    if(CheckForUserInput() > 0)
-    {
-      if(++LCD_Feature < LCD_FEATURES_NUM)
-      {
-       LCD_Show_Feature (LCD_Feature);
-      }
-      else
-      {
-        return;
-      }
-    }
-    HAL_Delay(100);
-  }
+//  while (1)
+//  {
+//
+//    if(CheckForUserInput() > 0)
+//    {
+//      if(++LCD_Feature < LCD_FEATURES_NUM)
+//      {
+//       LCD_Show_Feature (LCD_Feature);
+//      }
+//      else
+//      {
+//        return;
+//      }
+//    }
+//    HAL_Delay(100);
+//  }
 }
 
 /**
@@ -196,7 +197,7 @@ static void LCD_Show_Feature(uint8_t feature)
     /*  Set the brightness */
     for( i = 100; i >= 0; i-=10)
     {
-      sprintf((char*)text," Brightness  =  %d ",(int)i);
+//      sprintf((char*)text," Brightness  =  %d ",(int)i);
       UTIL_LCD_DisplayStringAt(0, x_size/2 + 45, (uint8_t *)text, CENTER_MODE);
       BSP_LCD_SetBrightness(0,i);
       HAL_Delay(300);
@@ -204,7 +205,7 @@ static void LCD_Show_Feature(uint8_t feature)
 
     for( i = 0; i <= 100; i+=10)
     {
-      sprintf((char*)text," Brightness  =  %d ",(int)i);
+//      sprintf((char*)text," Brightness  =  %d ",(int)i);
       UTIL_LCD_DisplayStringAt(0, x_size/2 + 45, (uint8_t *)text, CENTER_MODE);
       BSP_LCD_SetBrightness(0,i);
       HAL_Delay(300);

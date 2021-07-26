@@ -94,8 +94,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h747i_discovery_lcd.h"
-#include "stm32h747i_discovery_bus.h"
-#include "stm32h747i_discovery_sdram.h"
+//#include "stm32h747i_discovery_bus.h"
+//#include "stm32h747i_discovery_sdram.h"
 /** @addtogroup BSP
   * @{
   */
@@ -194,6 +194,9 @@ static void LL_FillBuffer(uint32_t Instance, uint32_t *pDst, uint32_t xSize, uin
 static void LL_ConvertLineToRGB(uint32_t Instance, uint32_t *pSrc, uint32_t *pDst, uint32_t xSize, uint32_t ColorMode);
 static void LCD_InitSequence(void);
 static void LCD_DeInitSequence(void);
+
+int32_t BSP_GetTick(void);
+
 /**
   * @}
   */
@@ -303,7 +306,7 @@ int32_t BSP_LCD_InitEx(uint32_t Instance, uint32_t Orientation, uint32_t PixelFo
 #else
     DSI_MspInit(&hlcd_dsi);
 #endif
-    if(MX_DSIHOST_DSI_Init(&hlcd_dsi, Width, Height, dsi_pixel_format) != HAL_OK)
+    if(BSP_MX_DSIHOST_DSI_Init(&hlcd_dsi, Width, Height, dsi_pixel_format) != HAL_OK)
     {
       ret = BSP_ERROR_PERIPH_FAILURE;
     }
@@ -313,7 +316,7 @@ int32_t BSP_LCD_InitEx(uint32_t Instance, uint32_t Orientation, uint32_t PixelFo
     }
     else
     {
-     if(MX_LTDC_Init(&hlcd_ltdc, Width, Height) != HAL_OK)
+     if(BSP_MX_LTDC_Init(&hlcd_ltdc, Width, Height) != HAL_OK)
      {
        ret = BSP_ERROR_PERIPH_FAILURE;
      }
@@ -324,10 +327,10 @@ int32_t BSP_LCD_InitEx(uint32_t Instance, uint32_t Orientation, uint32_t PixelFo
       /* Before configuring LTDC layer, ensure SDRAM is initialized */
 #if !defined(DATA_IN_ExtSDRAM)
       /* Initialize the SDRAM */
-      if(BSP_SDRAM_Init(0) != BSP_ERROR_NONE)
-      {
-        return BSP_ERROR_PERIPH_FAILURE;
-      }
+//      if(BSP_SDRAM_Init(0) != BSP_ERROR_NONE)
+//      {
+//        return BSP_ERROR_PERIPH_FAILURE;
+//      }
 #endif /* DATA_IN_ExtSDRAM */
 
       /* Configure default LTDC Layer 0. This configuration can be override by calling
@@ -721,7 +724,7 @@ static void LCD_DeInitSequence(void)
   * @param  PixelFormat DSI color coding RGB888 or RGB565
   * @retval HAL status
   */
-__weak HAL_StatusTypeDef MX_DSIHOST_DSI_Init(DSI_HandleTypeDef *hdsi, uint32_t Width, uint32_t Height, uint32_t PixelFormat)
+__weak HAL_StatusTypeDef BSP_MX_DSIHOST_DSI_Init(DSI_HandleTypeDef *hdsi, uint32_t Width, uint32_t Height, uint32_t PixelFormat)
 {
   DSI_PLLInitTypeDef PLLInit;
   DSI_VidCfgTypeDef VidCfg;
@@ -787,7 +790,7 @@ __weak HAL_StatusTypeDef MX_DSIHOST_DSI_Init(DSI_HandleTypeDef *hdsi, uint32_t W
   * @param  Height LTDC height
   * @retval HAL status
   */
-__weak HAL_StatusTypeDef MX_LTDC_Init(LTDC_HandleTypeDef *hltdc, uint32_t Width, uint32_t Height)
+__weak HAL_StatusTypeDef BSP_MX_LTDC_Init(LTDC_HandleTypeDef *hltdc, uint32_t Width, uint32_t Height)
 {
   hltdc->Instance = LTDC;
   hltdc->Init.HSPolarity = LTDC_HSPOLARITY_AL;
@@ -2021,53 +2024,53 @@ static void LTDC_HDMI_Init(LCD_HDMI_Timing_t *Timing)
   * @brief  Register Bus IOs if component ID is OK
   * @retval error status
   */
-static int32_t ADV7533_Probe(void)
-{
-  int32_t ret;
-  uint32_t id;
-  ADV7533_IO_t              IOCtx;
-  static ADV7533_Object_t         ADV7533Obj;
-
-  /* Configure the audio driver */
-  IOCtx.Address     = ADV7533_MAIN_I2C_ADDR;
-  IOCtx.Init        = BSP_I2C4_Init;
-  IOCtx.DeInit      = BSP_I2C4_DeInit;
-  IOCtx.ReadReg     = BSP_I2C4_ReadReg;
-  IOCtx.WriteReg    = BSP_I2C4_WriteReg;
-  IOCtx.GetTick     = BSP_GetTick;
-
-  if(ADV7533_RegisterBusIO (&ADV7533Obj, &IOCtx) != ADV7533_OK)
-  {
-    ret = BSP_ERROR_BUS_FAILURE;
-  }
-  else if(ADV7533_ReadID(&ADV7533Obj, &id) != ADV7533_OK)
-  {
-    ret = BSP_ERROR_COMPONENT_FAILURE;
-  }
-  else if(id != ADV7533_ID)
-  {
-    ret = BSP_ERROR_UNKNOWN_COMPONENT;
-  }
-  else
-  {
-    Lcd_Drv = (LCD_Drv_t *) &ADV7533_LCD_Driver;
-    Lcd_CompObj = &ADV7533Obj;
-    if(Lcd_Drv->Init(Lcd_CompObj, 0, 0) != ADV7533_OK)
-    {
-      ret = BSP_ERROR_COMPONENT_FAILURE;
-    }
-    else if(ADV7533_Configure(Lcd_CompObj, 2)!= ADV7533_OK)
-    {
-      ret = BSP_ERROR_COMPONENT_FAILURE;
-    }
-    else
-    {
-      ret = BSP_ERROR_NONE;
-    }
-  }
-
-  return ret;
-}
+//static int32_t ADV7533_Probe(void)
+//{
+//  int32_t ret;
+//  uint32_t id;
+//  ADV7533_IO_t              IOCtx;
+//  static ADV7533_Object_t         ADV7533Obj;
+//
+//  /* Configure the audio driver */
+//  IOCtx.Address     = ADV7533_MAIN_I2C_ADDR;
+//  IOCtx.Init        = BSP_I2C4_Init;
+//  IOCtx.DeInit      = BSP_I2C4_DeInit;
+//  IOCtx.ReadReg     = BSP_I2C4_ReadReg;
+//  IOCtx.WriteReg    = BSP_I2C4_WriteReg;
+//  IOCtx.GetTick     = BSP_GetTick;
+//
+//  if(ADV7533_RegisterBusIO (&ADV7533Obj, &IOCtx) != ADV7533_OK)
+//  {
+//    ret = BSP_ERROR_BUS_FAILURE;
+//  }
+//  else if(ADV7533_ReadID(&ADV7533Obj, &id) != ADV7533_OK)
+//  {
+//    ret = BSP_ERROR_COMPONENT_FAILURE;
+//  }
+//  else if(id != ADV7533_ID)
+//  {
+//    ret = BSP_ERROR_UNKNOWN_COMPONENT;
+//  }
+//  else
+//  {
+//    Lcd_Drv = (LCD_Drv_t *) &ADV7533_LCD_Driver;
+//    Lcd_CompObj = &ADV7533Obj;
+//    if(Lcd_Drv->Init(Lcd_CompObj, 0, 0) != ADV7533_OK)
+//    {
+//      ret = BSP_ERROR_COMPONENT_FAILURE;
+//    }
+//    else if(ADV7533_Configure(Lcd_CompObj, 2)!= ADV7533_OK)
+//    {
+//      ret = BSP_ERROR_COMPONENT_FAILURE;
+//    }
+//    else
+//    {
+//      ret = BSP_ERROR_NONE;
+//    }
+//  }
+//
+//  return ret;
+//}
 #endif /*USE_LCD_CTRL_ADV7533 */
 #if (USE_LCD_CTRL_OTM8009A > 0)
 /**
@@ -2116,6 +2119,16 @@ static int32_t OTM8009A_Probe(uint32_t ColorCoding, uint32_t Orientation)
   return ret;
 }
 #endif /* USE_LCD_CTRL_OTM8009A */
+
+/**
+  * @brief  Delay function
+  * @retval Tick value
+  */
+int32_t BSP_GetTick(void)
+{
+  return (int32_t)HAL_GetTick();
+}
+
 /**
   * @}
   */

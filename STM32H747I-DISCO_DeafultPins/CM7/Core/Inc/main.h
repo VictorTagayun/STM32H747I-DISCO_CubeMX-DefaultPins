@@ -33,9 +33,15 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+//#include <stdio.h>
+//#include "is42s32800g.h"
+
 #include "stm32h747i_discovery_qspi.h"
 #include "stm32h747i_discovery_sd.h"
 #include "stm32h747i_discovery_lcd.h"
+#include "stm32_lcd.h"
+//#include "stlogo.h"
+//#include "fonts.h"
 
 /* USER CODE END Includes */
 
